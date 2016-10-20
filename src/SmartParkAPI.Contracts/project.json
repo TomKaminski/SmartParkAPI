@@ -1,0 +1,17 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Autofac": "4.1.1",
+    "Autofac.Extras.Moq": "4.0.0",
+    "Microsoft.Extensions.Configuration": "1.0.0",
+    "Newtonsoft.Json": "9.0.1",
+    "SmartParkAPI.Shared": "1.0.0-*",
+    "System.Net.Mail.Abstractions": "1.0.8"
+  },
+
+  "frameworks": {
+    "net461": {
+    }
+  }
+}

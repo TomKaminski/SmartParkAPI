@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Autofac.Extras.Moq": "4.0.0",
+    "ImageResizer": "4.0.5",
+    "Newtonsoft.Json": "9.0.1",
+    "SmartParkAPI.Contracts": "1.0.0-*",
+    "SmartParkAPI.DataAccess": "1.0.0-*",
+    "System.Net.Http": "4.1.0",
+    "System.Net.Mail.Abstractions": "1.0.8"
+  },
+
+  "frameworks": {
+    "net461": {
+    }
+  }
+}
