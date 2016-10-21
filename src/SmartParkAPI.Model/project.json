@@ -1,18 +1,27 @@
 ﻿{
   "version": "1.0.0-*",
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.0.1",
-    "Microsoft.EntityFrameworkCore.InMemory": "1.0.1",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.1",
+    "Microsoft.EntityFrameworkCore": "1.0.0",
+    "Microsoft.EntityFrameworkCore.Design": {
+      "version": "1.0.0-preview2-final",
+      "type": "build"
+    },
+    "Microsoft.EntityFrameworkCore.InMemory": "1.0.0",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
     "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0",
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "SmartParkAPI.Shared": "1.0.0-*"
+  },
+  "tools": {
+    "Microsoft.EntityFrameworkCore.Tools": "1.0.0-preview2-final",
+    "Microsoft.AspNetCore.Razor.Tools": "1.0.0-preview2-final",
+    "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-preview2-final"
   },
   "frameworks": {
     "net461": {
     }
   },
-  "runtimes": {
-    "win10-x64": {}
+  "buildOptions": {
+    "emitEntryPoint": true
   }
 }
