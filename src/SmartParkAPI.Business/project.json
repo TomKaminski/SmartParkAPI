@@ -4,6 +4,7 @@
   "dependencies": {
     "Autofac.Extras.Moq": "4.0.0",
     "ImageResizer": "4.0.5",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
     "Newtonsoft.Json": "9.0.1",
     "SmartParkAPI.Contracts": "1.0.0-*",
     "SmartParkAPI.DataAccess": "1.0.0-*",
