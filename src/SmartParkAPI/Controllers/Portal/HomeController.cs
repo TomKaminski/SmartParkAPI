@@ -50,6 +50,16 @@ namespace SmartParkAPI.Controllers.Portal
         //    });
         //}
 
+        [Route("[controller]/[action]")]
+        [AllowAnonymous]
+        public IActionResult Test()
+        {
+            return Json(new
+            {
+                asd = 5
+            });
+        }
+
         [Route("~/Thanks")]
         public IActionResult ShopContinue(string error = null)
         {

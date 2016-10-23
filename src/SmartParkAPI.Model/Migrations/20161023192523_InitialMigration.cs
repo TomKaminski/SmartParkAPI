@@ -81,7 +81,7 @@ namespace SmartParkAPI.Model.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Charges = table.Column<int>(nullable: false),
-                    CreateDate = table.Column<DateTime>(nullable: false),
+                    CreateDate = table.Column<DateTime>(nullable: true),
                     Email = table.Column<string>(nullable: true),
                     IsAdmin = table.Column<bool>(nullable: false),
                     IsDeleted = table.Column<bool>(nullable: false),
@@ -304,6 +304,14 @@ namespace SmartParkAPI.Model.Migrations
                 name: "IX_WeatherInfo_WeatherId",
                 table: "WeatherInfo",
                 column: "WeatherId");
+
+            migrationBuilder.Sql(
+                @"
+                INSERT INTO dbo.[UserPreferences] (ShrinkedSidebar, UserId) VALUES (0, 1)
+
+                INSERT INTO dbo.[User] (Charges, Email, IsAdmin, IsDeleted,Name,LastName, PasswordHash, PasswordSalt, UserPreferencesId, LockedOut, UnsuccessfulLoginAttempts)
+                VALUES (99999, 'system.administrator@smartpark.pl', 1, 0, 'Admin','SmartPark','MqQyUuIjwtigVQE6/mi41+os9ClOi9iDxwD99OuEg0ABYay6im/a2wFaUEjkNsNm','qT/wFYOS1NEj4rBERnPE5KuJ0SMYvjW2KVZY9CwbT0jcHp95XWyyUc6CmaxzB4T6',1, 0, 0)
+                ");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

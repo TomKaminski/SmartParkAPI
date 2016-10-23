@@ -21,7 +21,7 @@ namespace SmartParkAPI.Model.Concrete
         public string LastName { get; set; }
         public bool IsAdmin { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime CreateDate { get; set; }
+        public DateTime? CreateDate { get; set; }
 
 
         public string PasswordHash { get; set; }

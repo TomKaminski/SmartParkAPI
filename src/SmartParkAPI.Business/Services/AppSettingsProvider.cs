@@ -24,7 +24,7 @@ namespace SmartParkAPI.Business.Services
         public IConfigurationRoot GetAppSettings(params AppSettingsType[] settings)
         {
             var builder = new ConfigurationBuilder()
-                .SetBasePath(_appEnv.WebRootPath);
+                .SetBasePath(_appEnv.ContentRootPath);
 
             foreach (var appSettingsType in settings)
             {
@@ -37,7 +37,7 @@ namespace SmartParkAPI.Business.Services
         public SmtpSettings GetSmtpSettings()
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(_appEnv.WebRootPath)
+                .SetBasePath(_appEnv.ContentRootPath)
                 .AddJsonFile($"{AppSettingsType.DefaultSettings}.json")
                 .Build();
 

@@ -179,7 +179,7 @@ namespace SmartParkAPI.Model.Migrations
 
                     b.Property<int>("Charges");
 
-                    b.Property<DateTime>("CreateDate");
+                    b.Property<DateTime?>("CreateDate");
 
                     b.Property<string>("Email");
 

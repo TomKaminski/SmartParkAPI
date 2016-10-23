@@ -300,7 +300,7 @@ namespace SmartParkAPI.Business.Services
 
         public async Task<ServiceResult<UserBaseDto, UserPreferencesDto>> LoginAsync(string email, string password)
         {
-            var stud = await _repository.Include(x => x.UserPreferences).FirstOrDefaultAsync(x => x.Email == email);
+            var stud = await _repository.FirstOrDefaultAsync(x => x.Email == email);
             if (stud != null && _passwordHasher.ValidatePassword(password, stud.PasswordHash, stud.PasswordSalt) && !stud.LockedOut && !stud.IsDeleted)
             {
                 return ServiceResult<UserBaseDto, UserPreferencesDto>.Success(_mapper.Map<UserBaseDto>(stud), _mapper.Map<UserPreferencesDto>(stud.UserPreferences));

@@ -8,7 +8,7 @@ using SmartParkAPI.Model;
 namespace SmartParkAPI.Model.Migrations
 {
     [DbContext(typeof(ParkingAthContext))]
-    [Migration("20161021092732_InitialMigration")]
+    [Migration("20161023192523_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -180,7 +180,7 @@ namespace SmartParkAPI.Model.Migrations
 
                     b.Property<int>("Charges");
 
-                    b.Property<DateTime>("CreateDate");
+                    b.Property<DateTime?>("CreateDate");
 
                     b.Property<string>("Email");
 
