@@ -7,15 +7,15 @@ namespace SmartParkAPI.Resolver.Mappings
 {
     public class TokenBackendMappings : Profile
     {
-        protected override void Configure()
+        public TokenBackendMappings()
         {
-            CreateMap<Token, TokenBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<Token, TokenBaseDto>();
 
-            CreateMap<TokenBaseDto, Token>().IgnoreNotExistingProperties();
+            CreateMap<TokenBaseDto, Token>();
 
-            CreateMap<SplittedTokenData, TokenBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<SplittedTokenData, TokenBaseDto>();
 
-            CreateMap<TokenBaseDto, SplittedTokenData>().IgnoreNotExistingProperties();
+            CreateMap<TokenBaseDto, SplittedTokenData>();
         }
     }
 }

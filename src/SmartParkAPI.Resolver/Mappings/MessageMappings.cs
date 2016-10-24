@@ -8,15 +8,15 @@ namespace SmartParkAPI.Resolver.Mappings
 {
     public class MessageBackendMappings : Profile
     {
-        protected override void Configure()
+        public MessageBackendMappings()
         {
-            CreateMap<Message, MessageDto>().IgnoreNotExistingProperties();
-            CreateMap<MessageDto, Message>().IgnoreNotExistingProperties();
+            CreateMap<Message, MessageDto>();
+            CreateMap<MessageDto, Message>();
             CreateMap<SmtpSettings, SmtpClient>()
                 .AfterMap((src, dest) =>
                 {
                     dest.Credentials = src.Credentials;
-                }).IgnoreNotExistingProperties();
+                });
         }
     }
 }

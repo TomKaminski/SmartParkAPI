@@ -7,15 +7,15 @@ namespace SmartParkAPI.Resolver.Mappings
 {
     public class PriceTresholdBackendMappings : Profile
     {
-        protected override void Configure()
+        public PriceTresholdBackendMappings()
         {
-            CreateMap<PriceTreshold, PriceTresholdBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<PriceTreshold, PriceTresholdBaseDto>();
 
             CreateMap<PriceTreshold, PriceTresholdAdminDto>()
                 .ForMember(x => x.NumOfOrders, opt => opt.MapFrom(k => k.Orders.Count))
-                .IgnoreNotExistingProperties();
+                ;
 
-            CreateMap<PriceTresholdBaseDto, PriceTreshold>().IgnoreNotExistingProperties();
+            CreateMap<PriceTresholdBaseDto, PriceTreshold>();
         }
     }
 }

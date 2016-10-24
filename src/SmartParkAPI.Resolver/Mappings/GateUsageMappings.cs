@@ -7,15 +7,15 @@ namespace SmartParkAPI.Resolver.Mappings
 {
     public class GateUsageBackendMappings : Profile
     {
-        protected override void Configure()
+        public GateUsageBackendMappings()
         {
-            CreateMap<GateUsage, GateUsageBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<GateUsage, GateUsageBaseDto>();
 
             CreateMap<GateUsage, GateUsageAdminDto>()
                 .ForMember(x => x.Initials, opt => opt.MapFrom(k => $"{k.User.Name} {k.User.LastName}"))
-                .IgnoreNotExistingProperties();
+                ;
 
-            CreateMap<GateUsageBaseDto, GateUsage>().IgnoreNotExistingProperties();
+            CreateMap<GateUsageBaseDto, GateUsage>();
         }
     }
 }

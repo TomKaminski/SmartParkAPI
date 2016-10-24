@@ -13,8 +13,7 @@ using SmartParkAPI.Shared.Enums;
 
 namespace SmartParkAPI.Controllers.Portal
 {
-    [Area("Portal")]
-    [Route("[area]")]
+    [Route("api/[controller]")]
     [Authorize]
     public class HomeController : BaseApiController
     {
@@ -50,9 +49,21 @@ namespace SmartParkAPI.Controllers.Portal
         //    });
         //}
 
-        [Route("[controller]/[action]")]
+        [Route("Test")]
+        [HttpGet]
         [AllowAnonymous]
         public IActionResult Test()
+        {
+            return Json(new
+            {
+                asd = 5
+            });
+        }
+
+        [Route("TestAdmin")]
+        [HttpGet]
+        [Authorize("AdminUser")]
+        public IActionResult TestAdmin()
         {
             return Json(new
             {

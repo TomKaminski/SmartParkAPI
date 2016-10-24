@@ -14,27 +14,28 @@ namespace SmartParkAPI.Mappings
 {
     public class AdminMappingsProfile : Profile
     {
-        protected override void Configure()
+        public AdminMappingsProfile()
         {
-            CreateMap<GateUsageAdminDto, AdminGateUsageListItemViewModel>()
-                .ForMember(x => x.Initials, s => s.MapFrom(a => a.Initials))
-                .ForMember(x => x.Date, m => m.MapFrom(s => s.DateOfUse.ToString("dd MMMM yyyy")))
-                .ForMember(x => x.Time, m => m.MapFrom(s => s.DateOfUse.ToString("HH:mm")))
-                .IgnoreNotExistingProperties();
 
-            CreateMap<PriceTresholdAdminDto, AdminPriceTresholdListItemViewModel>().IgnoreNotExistingProperties();
+            CreateMap<GateUsageAdminDto, AdminGateUsageListItemViewModel>()
+                  .ForMember(x => x.Initials, s => s.MapFrom(a => a.Initials))
+                  .ForMember(x => x.Date, m => m.MapFrom(s => s.DateOfUse.ToString("dd MMMM yyyy")))
+                  .ForMember(x => x.Time, m => m.MapFrom(s => s.DateOfUse.ToString("HH:mm")))
+                  ;
+
+            CreateMap<PriceTresholdAdminDto, AdminPriceTresholdListItemViewModel>();
             CreateMap<UserAdminDto, AdminUserListItemViewModel>()
                 .ForMember(x => x.Initials, a => a.MapFrom(s => $"{s.Name} {s.LastName}"))
                 .ForMember(x => x.CreateDateLabel, a => a.MapFrom(s => s.CreateDate.ToString("dd-MM-yyyy hh:mm")))
                 .ForMember(x => x.LastUserOrders, a => a.MapFrom(s => s.Orders))
-                .IgnoreNotExistingProperties();
+                ;
 
 
-            CreateMap<AdminUserEditViewModel, UserBaseDto>().IgnoreNotExistingProperties();
-            CreateMap<AdminPriceTresholdCreateViewModel, PriceTresholdBaseDto>().IgnoreNotExistingProperties();
-            CreateMap<AdminPriceTresholdEditViewModel, PriceTresholdBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<AdminUserEditViewModel, UserBaseDto>();
+            CreateMap<AdminPriceTresholdCreateViewModel, PriceTresholdBaseDto>();
+            CreateMap<AdminPriceTresholdEditViewModel, PriceTresholdBaseDto>();
 
-            CreateMap<PriceTresholdBaseDto, AdminPriceTresholdListItemViewModel>().IgnoreNotExistingProperties();
+            CreateMap<PriceTresholdBaseDto, AdminPriceTresholdListItemViewModel>();
 
             CreateMap<OrderAdminDto, AdminOrderListItemViewModel>()
                .ForMember(x => x.Price, a => a.MapFrom(s => s.Price.ToString("#.00")))
@@ -72,7 +73,7 @@ namespace SmartParkAPI.Mappings
                            dest.OrderPlace = "Portal";
                            break;
                    }
-               }).IgnoreNotExistingProperties();
+               });
         }
     }
 }

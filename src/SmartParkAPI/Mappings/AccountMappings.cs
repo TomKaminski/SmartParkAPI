@@ -10,23 +10,21 @@ namespace SmartParkAPI.Mappings
 {
     public class AccountFrontendMappings : Profile
     {
-        protected override void Configure()
+        public AccountFrontendMappings()
         {
             CreateMap<RegisterViewModel, UserBaseDto>()
-              .ForMember(x => x.Charges, opt => opt.UseValue(0))
-              .ForMember(x => x.IsAdmin, opt => opt.UseValue(false))
-              .ForMember(x => x.LockedOut, opt => opt.UseValue(false))
-              .ForMember(x => x.UnsuccessfulLoginAttempts, opt => opt.UseValue(0))
-              .IgnoreNotExistingProperties();
+                .ForMember(x => x.Charges, opt => opt.UseValue(0))
+                .ForMember(x => x.IsAdmin, opt => opt.UseValue(false))
+                .ForMember(x => x.LockedOut, opt => opt.UseValue(false))
+                .ForMember(x => x.UnsuccessfulLoginAttempts, opt => opt.UseValue(0));
 
-            CreateMap<LoginViewModel, UserBaseDto>().IgnoreNotExistingProperties();
+            CreateMap<LoginViewModel, UserBaseDto>();
 
-            CreateMap<UserBaseDto, AppUserState>().IgnoreNotExistingProperties();
+            CreateMap<UserBaseDto, AppUserState>();
 
-            CreateMap<ChangeUserInfoViewModel, UserBaseDto>().IgnoreNotExistingProperties();
-            CreateMap<UserBaseDto, ChangeUserInfoViewModel>().IgnoreNotExistingProperties();
-            CreateMap<UserBaseDto, GetUserApiModel>().IgnoreNotExistingProperties();
-
+            CreateMap<ChangeUserInfoViewModel, UserBaseDto>();
+            CreateMap<UserBaseDto, ChangeUserInfoViewModel>();
+            CreateMap<UserBaseDto, GetUserApiModel>();
         }
     }
 }
