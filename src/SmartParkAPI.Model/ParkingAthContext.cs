@@ -29,6 +29,7 @@ namespace SmartParkAPI.Model
         public virtual DbSet<PortalMessage> PortalMessage { get; set; }
         public virtual DbSet<Weather> Weather { get; set; }
         public virtual DbSet<WeatherInfo> WeatherInfo { get; set; }
+        public virtual DbSet<UserDevice> UserDevice { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -41,7 +42,7 @@ namespace SmartParkAPI.Model
 #if DEBUG
                 optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=ParkingATHWeb.Data;Trusted_Connection=True;MultipleActiveResultSets=true");
 #else
-                        optionsBuilder.UseSqlServer(@"Server=tcp:smartpark.database.windows.net,1433;Database=SmartPark;User ID=smartpark@smartpark;Password=J5cdmwg6tpm1;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
+                optionsBuilder.UseSqlServer(@"Server=tcp:smartpark.database.windows.net,1433;Database=SmartPark;User ID=smartpark@smartpark;Password=J5cdmwg6tpm1;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30");
 #endif
             }
         }
@@ -73,6 +74,11 @@ namespace SmartParkAPI.Model
 
             modelBuilder.Entity<User>()
                 .HasMany(x => x.Orders)
+                .WithOne(x => x.User)
+                .HasForeignKey(x => x.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.UserDevices)
                 .WithOne(x => x.User)
                 .HasForeignKey(x => x.UserId);
 

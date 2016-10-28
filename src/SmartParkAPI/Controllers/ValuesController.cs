@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartParkAPI.Contracts.Services;
 
@@ -10,6 +11,7 @@ using SmartParkAPI.Contracts.Services;
 namespace SmartParkAPI.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class ValuesController : Controller
     {
         private readonly IUserService _userService;

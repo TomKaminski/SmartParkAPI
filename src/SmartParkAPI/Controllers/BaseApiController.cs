@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SmartParkAPI.Contracts.Common;
@@ -7,6 +8,7 @@ using SmartParkAPI.Models.Base;
 
 namespace SmartParkAPI.Controllers
 {
+    [Authorize]
     public abstract class BaseApiController : Controller
     {
         private const string HeaderAuthorizeName = "HashHeader";

@@ -10,9 +10,9 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
       "launchUrl": "api/values",
       "environmentVariables": {
+        "AUTH_SECRET_KEY": "d87sfj432jk80la09mdf8s35tgda325",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },

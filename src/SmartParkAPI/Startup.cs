@@ -44,14 +44,14 @@ namespace SmartParkAPI
                 cfg.AddProfile(new PriceTresholdBackendMappings());
                 cfg.AddProfile(new PortalMessageBackendMappings());
                 cfg.AddProfile(new AdminMappingsProfile());
+                cfg.AddProfile(new UserDeviceBackendMappings());
             });
             _mapper = config.CreateMapper();
         }
 
         private readonly IMapper _mapper;
 
-        private const string SecretKey = "needtogetthisfromenvironment";
-        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("AUTH_SECRET_KEY")));
         public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.

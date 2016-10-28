@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SmartParkAPI.Contracts.Common;
+using SmartParkAPI.Contracts.DTO.User;
+using SmartParkAPI.Contracts.DTO.UserPreferences;
 using SmartParkAPI.Contracts.Services;
 using SmartParkAPI.Models.Auth;
 
@@ -22,10 +24,12 @@ namespace SmartParkAPI.Controllers
         private readonly ILogger _logger;
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly IUserService _userService;
+        private readonly IUserDeviceService _userDeviceService;
 
-        public AuthController(IOptions<JwtIssuerOptions> jwtOptions, ILoggerFactory loggerFactory, IUserService userService)
+        public AuthController(IOptions<JwtIssuerOptions> jwtOptions, ILoggerFactory loggerFactory, IUserService userService, IUserDeviceService userDeviceService)
         {
             _userService = userService;
+            _userDeviceService = userDeviceService;
             _jwtOptions = jwtOptions.Value;
             ThrowIfInvalidOptions(_jwtOptions);
 
@@ -38,21 +42,111 @@ namespace SmartParkAPI.Controllers
         }
 
         [HttpPost]
+        [Route("LoginWeb")]
         [AllowAnonymous]
-        public async Task<IActionResult> Get([FromForm] ApplicationUser applicationUser)
+        public async Task<IActionResult> LoginWeb([FromForm] ApplicationUser applicationUser)
         {
-            var identity = await GetClaimsIdentity(applicationUser);
-            if (identity == null)
+            var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
+            if (!userLoginResult.IsValid)
             {
                 _logger.LogInformation($"Invalid username ({applicationUser.UserName}) or password ({applicationUser.Password})");
                 return BadRequest("Invalid credentials");
             }
+            var identity = GetClaimsIdentity(userLoginResult);
 
+            var encodedJwt = await CreateJwtToken(applicationUser, identity);
+
+            // Serialize and return the response
+            var response = new
+            {
+                access_token = encodedJwt,
+                expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
+            };
+
+            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            return new OkObjectResult(json);
+        }
+
+        [HttpPost]
+        [Route("LoginApp")]
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginApp([FromForm] MobileApplicationUser applicationUser)
+        {
+            var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
+            if (!userLoginResult.IsValid)
+            {
+                _logger.LogInformation($"Invalid username ({applicationUser.UserName}) or password ({applicationUser.Password})");
+                return BadRequest("Invalid credentials");
+            }
+            var identity = GetClaimsIdentity(userLoginResult);
+
+            var appTokenResult = await _userDeviceService.CreateUpdateMobileTokenAsync(userLoginResult.Result, applicationUser.DeviceName);
+
+            if (!appTokenResult.IsValid)
+            {
+                return BadRequest("Cannot register current device in system.");
+            }
+
+            var encodedJwt = await CreateJwtToken(applicationUser, identity);
+
+            // Serialize and return the response
+            var response = new
+            {
+                access_token = encodedJwt,
+                expires_in = (int)_jwtOptions.ValidFor.TotalSeconds,
+                refresh_token = appTokenResult.Result.Token
+            };
+
+            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            return new OkObjectResult(json);
+        }
+
+        [HttpPost]
+        [Route("RefreshWebToken")]
+        public IActionResult RefreshAppToken()
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
+
+
+        [HttpPost]
+        [Route("RefreshWebToken")]
+        public IActionResult RefreshToken()
+        {
+            var token = HttpContext.Request.Headers["Authorization"].First().Replace("Bearer ", "");
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var decodedJwt = jwtSecurityTokenHandler.ReadJwtToken(token);
+            // Create the JWT security token and encode it.
+            var jwt = new JwtSecurityToken(
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
+                claims: decodedJwt.Claims,
+                notBefore: _jwtOptions.NotBefore,
+                expires: _jwtOptions.Expiration,
+                signingCredentials: _jwtOptions.SigningCredentials);
+
+            var encodedJwt = jwtSecurityTokenHandler.WriteToken(jwt);
+
+            // Serialize and return the response
+            var response = new
+            {
+                access_token = encodedJwt,
+                expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
+            };
+
+            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            return new OkObjectResult(json);
+        }
+
+        private async Task<string> CreateJwtToken(ApplicationUser applicationUser, ClaimsIdentity identity)
+        {
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, applicationUser.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64)
+                new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
+                    ClaimValueTypes.Integer64)
             };
             var allClaims = claims.Union(identity.Claims);
 
@@ -66,16 +160,7 @@ namespace SmartParkAPI.Controllers
                 signingCredentials: _jwtOptions.SigningCredentials);
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            // Serialize and return the response
-            var response = new
-            {
-                access_token = encodedJwt,
-                expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
-            };
-
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
-            return new OkObjectResult(json);
+            return encodedJwt;
         }
 
         private static void ThrowIfInvalidOptions(JwtIssuerOptions options)
@@ -102,25 +187,20 @@ namespace SmartParkAPI.Controllers
         private static long ToUnixEpochDate(DateTime date)
           => (long)Math.Round((date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
 
-        private async Task<ClaimsIdentity> GetClaimsIdentity(ApplicationUser user)
+        private ClaimsIdentity GetClaimsIdentity(ServiceResult<UserBaseDto, UserPreferencesDto> validServiceResult)
         {
-            var userLoginResult = await _userService.LoginAsync(user.UserName, user.Password);
-            if (userLoginResult.IsValid)
-            {
-                var claims = new List<Claim>
+            var claims = new List<Claim>
                 {
-                    new Claim("Username", userLoginResult.Result.Email),
-                    new Claim("Name", userLoginResult.Result.Name),
-                    new Claim("isAdmin",userLoginResult.Result.IsAdmin.ToString()),
-                    new Claim("LastName",userLoginResult.Result.LastName),
-                    new Claim("SidebarShrinked",userLoginResult.SecondResult.ShrinkedSidebar.ToString()),
-                    new Claim("userId",userLoginResult.Result.Id.ToString()),
-                    new Claim("photoId", userLoginResult.SecondResult.ProfilePhotoId.ToString())
+                    new Claim("Username", validServiceResult.Result.Email),
+                    new Claim("Name", validServiceResult.Result.Name),
+                    new Claim("isAdmin",validServiceResult.Result.IsAdmin.ToString()),
+                    new Claim("LastName",validServiceResult.Result.LastName),
+                    new Claim("SidebarShrinked",validServiceResult.SecondResult.ShrinkedSidebar.ToString()),
+                    new Claim("userId",validServiceResult.Result.Id.ToString()),
+                    new Claim("photoId", validServiceResult.SecondResult.ProfilePhotoId.ToString())
                 };
-                var identity = new ClaimsIdentity(claims, "Token");
-                return identity;
-            }
-            return null;
+            var identity = new ClaimsIdentity(claims, "Token");
+            return identity;
         }
     }
 }

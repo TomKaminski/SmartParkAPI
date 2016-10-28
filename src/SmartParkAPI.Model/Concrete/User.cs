@@ -38,6 +38,8 @@ namespace SmartParkAPI.Model.Concrete
         [ForeignKey("UserPreferencesId")]
         public virtual UserPreferences UserPreferences { get; set; }
 
+        public virtual HashSet<UserDevice> UserDevices { get; set; }
+
         public virtual HashSet<Message> UserMessages { get; set; }
         public virtual HashSet<PortalMessage> UserPortalMessages { get; set; }
 

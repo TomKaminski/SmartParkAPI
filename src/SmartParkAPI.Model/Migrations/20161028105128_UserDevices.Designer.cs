@@ -8,9 +8,10 @@ using SmartParkAPI.Model;
 namespace SmartParkAPI.Model.Migrations
 {
     [DbContext(typeof(ParkingAthContext))]
-    partial class ParkingAthContextModelSnapshot : ModelSnapshot
+    [Migration("20161028105128_UserDevices")]
+    partial class UserDevices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rtm-21431")
