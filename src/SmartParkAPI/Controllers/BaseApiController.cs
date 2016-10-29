@@ -11,7 +11,6 @@ namespace SmartParkAPI.Controllers
     [Authorize]
     public abstract class BaseApiController : Controller
     {
-        private const string HeaderAuthorizeName = "HashHeader";
 
         protected IEnumerable<string> GetModelStateErrors(ModelStateDictionary modelState)
         {
@@ -23,23 +22,14 @@ namespace SmartParkAPI.Controllers
             return modelStateErrors;
         }
 
-        protected string GetHashFromHeader()
+        protected IActionResult ReturnBadRequestWithModelErrors()
         {
-            return Request.Headers[HeaderAuthorizeName];
+            return new BadRequestObjectResult(GetModelStateErrors(ModelState));
         }
 
         protected string GetAppBaseUrl()
         {
             return Url.Action("Index", "Home", new { area = "Portal" }, "http");
-        }
-
-        protected IActionResult ReturnModelWithError<TModel, TServiceResult>(TModel model, TServiceResult serviceResult, ModelStateDictionary modelState)
-            where TModel : SmartParkBaseViewModel
-            where TServiceResult : ServiceResult
-        {
-            model.AppendErrors(serviceResult.ValidationErrors);
-            model.AppendErrors(GetModelStateErrors(modelState));
-            return View(model);
         }
 
         protected IActionResult ReturnJsonModelWithError<TModel, TServiceResult>(TModel model, TServiceResult serviceResult, ModelStateDictionary modelState)

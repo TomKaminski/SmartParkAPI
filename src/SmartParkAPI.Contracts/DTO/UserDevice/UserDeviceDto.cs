@@ -5,7 +5,6 @@ namespace SmartParkAPI.Contracts.DTO.UserDevice
     public class UserDeviceDto : BaseDto<int>
     {
         public string Name { get; set; }
-        public bool CanAccess { get; set; }
         public string Token { get; set; }
 
         public int UserId { get; set; }

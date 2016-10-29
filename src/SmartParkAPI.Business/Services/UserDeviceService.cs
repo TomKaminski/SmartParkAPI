@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SmartParkAPI.Business.Services.Base;
 using SmartParkAPI.Contracts.Common;
 using SmartParkAPI.Contracts.DTO.User;
 using SmartParkAPI.Contracts.DTO.UserDevice;
+using SmartParkAPI.Contracts.DTO.UserPreferences;
 using SmartParkAPI.Contracts.Services;
 using SmartParkAPI.DataAccess.Common;
 using SmartParkAPI.DataAccess.Interfaces;
@@ -37,13 +39,20 @@ namespace SmartParkAPI.Business.Services
             {
                 UserId = userDto.Id,
                 Name = deviceName,
-                Token = Guid.NewGuid().ToString(),
-                CanAccess = true
+                Token = Guid.NewGuid().ToString()
             };
 
             var ud = _repository.Add(newUserDeviceEntry);
             await _unitOfWork.CommitAsync();
             return ServiceResult<UserDeviceDto>.Success(_mapper.Map<UserDeviceDto>(ud));
+        }
+
+        public async Task<ServiceResult<UserBaseDto, UserPreferencesDto>> ValidateMobileTokenAsync(string email, string token)
+        {
+            var possibleToken = await _repository.Include(x => x.User).Include(x=>x.User.UserPreferences).FirstOrDefaultAsync(x => x.User.Email == email && x.Token == token);
+            return possibleToken == null 
+                ? ServiceResult<UserBaseDto, UserPreferencesDto>.Failure() 
+                : ServiceResult<UserBaseDto, UserPreferencesDto>.Success(_mapper.Map<UserBaseDto>(possibleToken.User), _mapper.Map<UserPreferencesDto>(possibleToken.User.UserPreferences));
         }
     }
 }

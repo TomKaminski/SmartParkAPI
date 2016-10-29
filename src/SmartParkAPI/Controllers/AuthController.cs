@@ -18,7 +18,7 @@ using SmartParkAPI.Models.Auth;
 namespace SmartParkAPI.Controllers
 {
     [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : BaseApiController
     {
         private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger _logger;
@@ -46,6 +46,11 @@ namespace SmartParkAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginWeb([FromForm] ApplicationUser applicationUser)
         {
+            if (!ModelState.IsValid)
+            {
+                return ReturnBadRequestWithModelErrors();
+            }
+
             var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
             if (!userLoginResult.IsValid)
             {
@@ -54,7 +59,7 @@ namespace SmartParkAPI.Controllers
             }
             var identity = GetClaimsIdentity(userLoginResult);
 
-            var encodedJwt = await CreateJwtToken(applicationUser, identity);
+            var encodedJwt = await CreateJwtToken(applicationUser.UserName, identity);
 
             // Serialize and return the response
             var response = new
@@ -72,6 +77,11 @@ namespace SmartParkAPI.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginApp([FromForm] MobileApplicationUser applicationUser)
         {
+            if (!ModelState.IsValid)
+            {
+                return ReturnBadRequestWithModelErrors();
+            }
+
             var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
             if (!userLoginResult.IsValid)
             {
@@ -87,7 +97,7 @@ namespace SmartParkAPI.Controllers
                 return BadRequest("Cannot register current device in system.");
             }
 
-            var encodedJwt = await CreateJwtToken(applicationUser, identity);
+            var encodedJwt = await CreateJwtToken(applicationUser.UserName, identity);
 
             // Serialize and return the response
             var response = new
@@ -103,16 +113,35 @@ namespace SmartParkAPI.Controllers
 
         [HttpPost]
         [Route("RefreshWebToken")]
-        public IActionResult RefreshAppToken()
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshAppToken([FromForm] RefreshAppTokenModel model)
         {
-            //TODO
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return ReturnBadRequestWithModelErrors();
+            }
+            var validateMobileTokenResult = await _userDeviceService.ValidateMobileTokenAsync(model.Email, model.Token);
+            if (validateMobileTokenResult.IsValid)
+            {
+                var identity = GetClaimsIdentity(validateMobileTokenResult);
+                var encodedJwt = await CreateJwtToken(model.Email, identity);
+                // Serialize and return the response
+                var response = new
+                {
+                    access_token = encodedJwt,
+                    expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
+                };
+
+                var json = JsonConvert.SerializeObject(response, _serializerSettings);
+                return new OkObjectResult(json);
+            }
+            return BadRequest();
         }
 
 
         [HttpPost]
         [Route("RefreshWebToken")]
-        public IActionResult RefreshToken()
+        public IActionResult RefreshWebToken()
         {
             var token = HttpContext.Request.Headers["Authorization"].First().Replace("Bearer ", "");
             var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
@@ -139,11 +168,13 @@ namespace SmartParkAPI.Controllers
             return new OkObjectResult(json);
         }
 
-        private async Task<string> CreateJwtToken(ApplicationUser applicationUser, ClaimsIdentity identity)
+
+
+        private async Task<string> CreateJwtToken(string email, ClaimsIdentity identity)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, applicationUser.UserName),
+                new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
                     ClaimValueTypes.Integer64)
