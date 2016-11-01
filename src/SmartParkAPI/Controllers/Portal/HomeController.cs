@@ -34,54 +34,19 @@ namespace SmartParkAPI.Controllers.Portal
             _portalMessageService = portalMessageService;
         }
 
-        //[Route("~/[area]")]
-        //public async Task<IActionResult> Index(bool fromShop = false, bool isError = false, string pathBase = null)
+        //[Route("~/Thanks")]
+        //[HttpGet]
+        //public IActionResult ShopContinue(string error = null)
         //{
-        //    var unreadClusters =
-        //        (await _portalMessageService.GetUnreadClustersCountAsync(CurrentUser.UserId.Value)).Result;
-
-        //    return View(new HomeViewModel
-        //    {
-        //        FromShop = fromShop,
-        //        UnreadClustersCount = unreadClusters,
-        //        IsError = isError,
-        //        PathBase = GetPathBaseRedirect(pathBase)
-        //    });
+        //    return RedirectToActionPermanent("Index", new { fromShop = true, isError = error != null });
         //}
 
-        [Route("Test")]
+        [Route("[action]")]
         [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Test()
-        {
-            return Json(new
-            {
-                asd = 5
-            });
-        }
-
-        [Route("TestAdmin")]
-        [HttpGet]
-        [Authorize("AdminUser")]
-        public IActionResult TestAdmin()
-        {
-            return Json(new
-            {
-                asd = 5
-            });
-        }
-
-        [Route("~/Thanks")]
-        public IActionResult ShopContinue(string error = null)
-        {
-            return RedirectToActionPermanent("Index", new { fromShop = true, isError = error != null });
-        }
-
-        [Route("[controller]/[action]")]
         public async Task<IActionResult> GetWeatherData()
         {
             var weatherData = _mapper.Map<WeatherDataViewModel>((await _weatherService.GetLatestWeatherDataAsync()).Result);
-            return Json(weatherData);
+            return Ok(weatherData);
         }
 
         //[Route("[controller]/[action]")]

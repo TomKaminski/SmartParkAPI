@@ -29,12 +29,14 @@ namespace SmartParkAPI.Controllers.Admin
             throw new NotImplementedException();
         }
 
-        public override SmartJsonResult<IEnumerable<AdminUserListItemViewModel>> List()
+        public override IActionResult List()
         {
             var serviceResult = _entityService.GetAllAdmin();
-            return serviceResult.IsValid
-                ? SmartJsonResult<IEnumerable<AdminUserListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminUserListItemViewModel>))
-                : SmartJsonResult<IEnumerable<AdminUserListItemViewModel>>.Failure(serviceResult.ValidationErrors);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<IEnumerable<AdminUserListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminUserListItemViewModel>)));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<AdminUserListItemViewModel>>.Failure(serviceResult.ValidationErrors));
         }
 
         [HttpPost]
@@ -43,11 +45,13 @@ namespace SmartParkAPI.Controllers.Admin
             if (ModelState.IsValid)
             {
                 var recoverUserResult = await _entityService.RecoverUserAsync(model.Id);
-                return Json(recoverUserResult.IsValid
-                    ? SmartJsonResult.Success("Operacja przywrócenia użytkownika zakończona pomyślnie.")
-                    : SmartJsonResult.Failure(recoverUserResult.ValidationErrors));
+                if (recoverUserResult.IsValid)
+                {
+                    return Ok(SmartJsonResult.Success("Operacja przywrócenia użytkownika zakończona pomyślnie."));
+                }
+                return BadRequest(SmartJsonResult.Failure(recoverUserResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]
@@ -56,11 +60,13 @@ namespace SmartParkAPI.Controllers.Admin
             if (ModelState.IsValid)
             {
                 var serviceResult = await _entityService.AdminEditAsync(_mapper.Map<UserBaseDto>(model), model.OldEmail);
-                return Json(serviceResult.IsValid
-                    ? SmartJsonResult.Success("Edycja użytkownika zakończona pomyślnie")
-                    : SmartJsonResult.Failure(serviceResult.ValidationErrors));
+                if (serviceResult.IsValid)
+                {
+                    return Ok(SmartJsonResult.Success("Edycja użytkownika zakończona pomyślnie"));
+                }
+                return BadRequest(SmartJsonResult.Failure(serviceResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
     }
 }

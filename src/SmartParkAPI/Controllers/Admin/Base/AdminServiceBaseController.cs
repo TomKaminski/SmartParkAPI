@@ -23,26 +23,24 @@ namespace SmartParkAPI.Controllers.Admin.Base
             _mapper = mapper;
         }
 
-        //[Route("~/[area]/[controller]")]
-        //public virtual IActionResult Index()
-        //{
-        //    return PartialView();
-        //}
-
-        public virtual async Task<SmartJsonResult<IEnumerable<TListViewModel>>> ListAsync()
+        public virtual async Task<IActionResult> ListAsync()
         {
             var serviceResult = await GetAllAsync();
-            return serviceResult.IsValid 
-                ? SmartJsonResult<IEnumerable<TListViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<TListViewModel>)) 
-                : SmartJsonResult<IEnumerable<TListViewModel>>.Failure(serviceResult.ValidationErrors);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<IEnumerable<TListViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<TListViewModel>)));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<TListViewModel>>.Failure(serviceResult.ValidationErrors));
         }
 
-        public virtual SmartJsonResult<IEnumerable<TListViewModel>> List()
+        public virtual IActionResult List()
         {
             var serviceResult = _entityService.GetAll();
-            return serviceResult.IsValid
-                ? SmartJsonResult<IEnumerable<TListViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<TListViewModel>))
-                : SmartJsonResult<IEnumerable<TListViewModel>>.Failure(serviceResult.ValidationErrors);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<IEnumerable<TListViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<TListViewModel>)));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<TListViewModel>>.Failure(serviceResult.ValidationErrors));
         }
 
         protected virtual async Task<ServiceResult<IEnumerable<TDto>>> GetAllAsync()

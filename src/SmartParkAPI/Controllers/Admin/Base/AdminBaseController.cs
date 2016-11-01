@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SmartParkAPI.Controllers.Admin.Base
 {
-    [Area("Admin")]
-    //[Authorize(Policy = "Admin")]
-    [Route("[area]/[controller]/[action]")]
-    public class AdminBaseController:BaseApiController
+    [Authorize(Policy = "AdminUser")]
+    [Route("api/Admin/[controller]/[action]")]
+    public class AdminBaseController : BaseApiController
     {
     }
 }

@@ -33,12 +33,14 @@ namespace SmartParkAPI.Controllers.Admin
             throw new NotImplementedException();
         }
 
-        public override async Task<SmartJsonResult<IEnumerable<AdminPriceTresholdListItemViewModel>>> ListAsync()
+        public override async Task<IActionResult> ListAsync()
         {
             var serviceResult = await _entityService.GetAllAdminAsync();
-            return serviceResult.IsValid
-                ? SmartJsonResult<IEnumerable<AdminPriceTresholdListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminPriceTresholdListItemViewModel>))
-                : SmartJsonResult<IEnumerable<AdminPriceTresholdListItemViewModel>>.Failure(serviceResult.ValidationErrors);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<IEnumerable<AdminPriceTresholdListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminPriceTresholdListItemViewModel>)));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<AdminPriceTresholdListItemViewModel>>.Failure(serviceResult.ValidationErrors));
         }
 
         [HttpPost]
@@ -47,11 +49,13 @@ namespace SmartParkAPI.Controllers.Admin
             if (ModelState.IsValid)
             {
                 var recoverUserResult = await _entityService.RecoverPriceTresholdAsync(model.Id);
-                return Json(recoverUserResult.IsValid
-                    ? SmartJsonResult.Success(recoverUserResult.SuccessNotifications.First())
-                    : SmartJsonResult.Failure(recoverUserResult.ValidationErrors));
+                if (recoverUserResult.IsValid)
+                {
+                    return Ok(SmartJsonResult.Success(recoverUserResult.SuccessNotifications.First()));
+                }
+                return BadRequest(SmartJsonResult.Failure(recoverUserResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]

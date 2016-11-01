@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SmartParkAPI.Contracts.Common;
+using SmartParkAPI.Models;
 using SmartParkAPI.Models.Base;
 
 namespace SmartParkAPI.Controllers
@@ -11,6 +15,25 @@ namespace SmartParkAPI.Controllers
     [Authorize]
     public abstract class BaseApiController : Controller
     {
+        protected AppUserState CurrentUser;
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            base.OnActionExecuting(context);
+
+            var token = context.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (token != null)
+            {
+                token = token.Replace("Bearer ", "");
+                var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+                var decodedJwt = jwtSecurityTokenHandler.ReadJwtToken(token);
+                CurrentUser = new AppUserState(decodedJwt);
+            }
+            else
+            {
+                CurrentUser = new AppUserState();
+            }
+        }
 
         protected IEnumerable<string> GetModelStateErrors(ModelStateDictionary modelState)
         {
@@ -29,10 +52,11 @@ namespace SmartParkAPI.Controllers
 
         protected string GetAppBaseUrl()
         {
-            return Url.Action("Index", "Home", new { area = "Portal" }, "http");
+            return Url.Action("Index", "Home", new {area = "Portal"}, "http");
         }
 
-        protected IActionResult ReturnJsonModelWithError<TModel, TServiceResult>(TModel model, TServiceResult serviceResult, ModelStateDictionary modelState)
+        protected IActionResult ReturnJsonModelWithError<TModel, TServiceResult>(TModel model,
+            TServiceResult serviceResult, ModelStateDictionary modelState)
             where TModel : SmartParkBaseViewModel
             where TServiceResult : ServiceResult
         {
@@ -40,44 +64,5 @@ namespace SmartParkAPI.Controllers
             model.AppendErrors(GetModelStateErrors(modelState));
             return Json(model);
         }
-
-
-
-        #region TokenAuth
-        //private readonly TokenAuthOptions _tokenOptions;
-
-        //protected BaseApiController(TokenAuthOptions tokenOptions, IUserService userService)
-        //{
-        //    _tokenOptions = tokenOptions;
-        //    _userService = userService;
-        //}
-
-        //protected async Task<string> GetTokenAsync(string user, DateTime? expires)
-        //{
-        //    var handler = new JwtSecurityTokenHandler();
-
-        //    var authenticatedUser = await _userService.GetByEmailAsync(user);
-
-        //    var claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimTypes.NameIdentifier, authenticatedUser.Result.Email),
-        //        new Claim(ClaimTypes.Name, authenticatedUser.Result.Name),
-        //        new Claim("isAdmin", authenticatedUser.Result.IsAdmin.ToString()),
-        //        new Claim("LastName", authenticatedUser.Result.LastName)
-        //    };
-
-        //    var identity = new ClaimsIdentity(claims, "TokenAuth");
-
-        //    var securityToken = handler.CreateToken(
-        //        _tokenOptions.Issuer, 
-        //        _tokenOptions.Audience,
-        //        signingCredentials: _tokenOptions.SigningCredentials,
-        //        subject: identity,
-        //        expires: expires
-        //        );
-
-        //    return handler.WriteToken(securityToken);
-        //}
-        #endregion
     }
 }

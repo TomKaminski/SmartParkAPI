@@ -32,11 +32,13 @@ namespace SmartParkAPI.Controllers.Admin.Base
             if (ModelState.IsValid)
             {
                 var serviceResult = await _entityService.CreateAsync(_mapper.Map<TDto>(model));
-                return Json(serviceResult.IsValid 
-                    ? SmartJsonResult<TListViewModel>.Success(_mapper.Map<TListViewModel>(serviceResult.Result)) 
-                    : SmartJsonResult.Failure(serviceResult.ValidationErrors));
+                if (serviceResult.IsValid)
+                {
+                    return Ok(SmartJsonResult<TListViewModel>.Success(_mapper.Map<TListViewModel>(serviceResult.Result)));
+                }
+                return BadRequest(SmartJsonResult.Failure(serviceResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]
@@ -45,11 +47,13 @@ namespace SmartParkAPI.Controllers.Admin.Base
             if (ModelState.IsValid)
             {
                 var serviceResult = await _entityService.DeleteAsync(model.Id);
-                return Json(serviceResult.IsValid
-                    ? SmartJsonResult.Success("Operacja usunięcia zakończona pomyślnie.")
-                    : SmartJsonResult.Failure(serviceResult.ValidationErrors));
+                if (serviceResult.IsValid)
+                {
+                    return Ok(SmartJsonResult.Success("Operacja usunięcia zakończona pomyślnie."));
+                }
+                return BadRequest(SmartJsonResult.Failure(serviceResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]
@@ -58,19 +62,13 @@ namespace SmartParkAPI.Controllers.Admin.Base
             if (ModelState.IsValid)
             {
                 var serviceResult = await _entityService.EditAsync(_mapper.Map<TDto>(model));
-                return Json(serviceResult.IsValid
-                    ? SmartJsonResult<TListViewModel>.Success(_mapper.Map<TListViewModel>(serviceResult.Result),"Edycja zakończona pomyślnie")
-                    : SmartJsonResult.Failure(serviceResult.ValidationErrors));
+                if (serviceResult.IsValid)
+                {
+                    return Ok(SmartJsonResult<TListViewModel>.Success(_mapper.Map<TListViewModel>(serviceResult.Result), "Edycja zakończona pomyślnie"));
+                }
+                return BadRequest(SmartJsonResult.Failure(serviceResult.ValidationErrors));
             }
-            return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
-
-        //protected IActionResult ReturnWithModelBase<TBaseModel>(TBaseModel model, ServiceResult serviceResult, ModelStateDictionary modelstate, string returnActionName = "List")
-        //    where TBaseModel : SmartParkBaseViewModel
-        //{
-        //    return serviceResult.IsValid
-        //        ? RedirectToAction(returnActionName)
-        //        : ReturnModelWithError(model, serviceResult, modelstate);
-        //}
     }
 }

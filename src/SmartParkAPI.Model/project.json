@@ -20,8 +20,8 @@
   "frameworks": {
     "net461": {
     }
-  },
-  "buildOptions": {
-    "emitEntryPoint": true
   }
+  //"buildOptions": {
+  //  "emitEntryPoint": true
+  //}
 }

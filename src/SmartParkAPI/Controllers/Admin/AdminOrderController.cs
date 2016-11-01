@@ -23,12 +23,14 @@ namespace SmartParkAPI.Controllers.Admin
             _mapper = mapper;
         }
 
-        public override async Task<SmartJsonResult<IEnumerable<AdminOrderListItemViewModel>>> ListAsync()
+        public override async Task<IActionResult> ListAsync()
         {
             var serviceResult = await _entityService.GetAllAdminAsync();
-            return serviceResult.IsValid
-                ? SmartJsonResult<IEnumerable<AdminOrderListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminOrderListItemViewModel>))
-                : SmartJsonResult<IEnumerable<AdminOrderListItemViewModel>>.Failure(serviceResult.ValidationErrors);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<IEnumerable<AdminOrderListItemViewModel>>.Success(serviceResult.Result.Select(_mapper.Map<AdminOrderListItemViewModel>)));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<AdminOrderListItemViewModel>>.Failure(serviceResult.ValidationErrors));
         }
 
         [HttpPost]
@@ -47,15 +49,17 @@ namespace SmartParkAPI.Controllers.Admin
             var dateTo = model.DateTo;
 
             var serviceResult = await _entityService.GetAllAdminAsync(x => x.Date >= dateFrom && x.Date <= dateTo);
-            return Json(serviceResult.IsValid
-                ? SmartJsonResult<SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>>
-                .Success(new SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>
-                {
-                    ListItems = serviceResult.Result.Select(_mapper.Map<AdminOrderListItemViewModel>),
-                    DateTo = model.DateTo,
-                    DateFrom = model.DateFrom
-                })
-                : SmartJsonResult<SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>>.Failure(serviceResult.ValidationErrors));
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>>
+                    .Success(new SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>
+                    {
+                        ListItems = serviceResult.Result.Select(_mapper.Map<AdminOrderListItemViewModel>),
+                        DateTo = model.DateTo,
+                        DateFrom = model.DateFrom
+                    }));
+            }
+            return BadRequest(SmartJsonResult<SmartParkListWithDateRangeViewModel<AdminOrderListItemViewModel>>.Failure(serviceResult.ValidationErrors));
         }
     }
 }

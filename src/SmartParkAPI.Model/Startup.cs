@@ -3,22 +3,22 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace SmartParkAPI.Model
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-        }
-    }
+    //public class Program
+    //{
+    //    public static void Main(string[] args)
+    //    {
+    //    }
+    //}
 
-    public class TemporaryDbContextFactory : IDbContextFactory<ParkingAthContext>
-    {
-        public ParkingAthContext Create(DbContextFactoryOptions options)
-        {
-            var builder = new DbContextOptionsBuilder<ParkingAthContext>();
-            builder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=ParkingATHWeb.Data;Trusted_Connection=True;MultipleActiveResultSets=true");
-            return new ParkingAthContext(builder.Options);
-        }
-    }
+    //public class TemporaryDbContextFactory : IDbContextFactory<ParkingAthContext>
+    //{
+    //    public ParkingAthContext Create(DbContextFactoryOptions options)
+    //    {
+    //        var builder = new DbContextOptionsBuilder<ParkingAthContext>();
+    //        builder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=ParkingATHWeb.Data;Trusted_Connection=True;MultipleActiveResultSets=true");
+    //        return new ParkingAthContext(builder.Options);
+    //    }
+    //}
 
     //    public class Startup
     //    {

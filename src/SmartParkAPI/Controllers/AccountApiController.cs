@@ -31,20 +31,6 @@ namespace SmartParkAPI.Controllers
         }
 
         [HttpPost]
-        [Route("Login")]
-        public async Task<SmartJsonResult<UserBaseDto>> Login([FromBody] LoginApiModel model)
-        {
-            if (!ModelState.IsValid)
-                return SmartJsonResult<UserBaseDto>.Failure(GetModelStateErrors(ModelState));
-
-            var loginApiResult = await _userService.LoginAsync(model.Username, model.Password);
-
-            return loginApiResult.IsValid
-                ? SmartJsonResult<UserBaseDto>.Success(loginApiResult.Result)
-                : SmartJsonResult<UserBaseDto>.Failure(loginApiResult.ValidationErrors);
-        }
-
-        [HttpPost]
         [Route("Forgot")]
         public async Task<SmartJsonResult<bool>> ForgotPassword([FromBody] ForgotApiModel model)
         {
