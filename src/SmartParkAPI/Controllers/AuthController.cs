@@ -14,6 +14,7 @@ using SmartParkAPI.Contracts.DTO.User;
 using SmartParkAPI.Contracts.DTO.UserPreferences;
 using SmartParkAPI.Contracts.Services;
 using SmartParkAPI.Models.Auth;
+using SmartParkAPI.Models.Base;
 
 namespace SmartParkAPI.Controllers
 {
@@ -44,7 +45,7 @@ namespace SmartParkAPI.Controllers
         [HttpPost]
         [Route("LoginWeb")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginWeb([FromForm] ApplicationUser applicationUser)
+        public async Task<IActionResult> LoginWeb([FromBody] ApplicationUser applicationUser)
         {
             if (!ModelState.IsValid)
             {
@@ -55,12 +56,13 @@ namespace SmartParkAPI.Controllers
             if (!userLoginResult.IsValid)
             {
                 _logger.LogInformation($"Invalid username ({applicationUser.UserName}) or password ({applicationUser.Password})");
-                return BadRequest("Invalid credentials");
+                return BadRequest(SmartJsonResult.Failure("Invalid credentials."));
             }
             var identity = GetClaimsIdentity(userLoginResult);
 
             var encodedJwt = await CreateJwtToken(applicationUser.UserName, identity);
 
+            
             // Serialize and return the response
             var response = new
             {
@@ -68,7 +70,7 @@ namespace SmartParkAPI.Controllers
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };
 
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
             return new OkObjectResult(json);
         }
 
@@ -107,7 +109,7 @@ namespace SmartParkAPI.Controllers
                 refresh_token = appTokenResult.Result.Token
             };
 
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
             return new OkObjectResult(json);
         }
 
