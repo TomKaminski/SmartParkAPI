@@ -9,7 +9,7 @@ namespace SmartParkAPI.Model.Concrete
         public byte[] ProfilePhoto { get; set; }
         public Guid? ProfilePhotoId { get; set; }
 
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public virtual User User { get; set; }
     }
 }

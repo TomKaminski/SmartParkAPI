@@ -47,7 +47,7 @@ namespace SmartParkAPI.Controllers
 
         protected IActionResult ReturnBadRequestWithModelErrors()
         {
-            return new BadRequestObjectResult(GetModelStateErrors(ModelState));
+            return new BadRequestObjectResult(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         protected string GetAppBaseUrl()

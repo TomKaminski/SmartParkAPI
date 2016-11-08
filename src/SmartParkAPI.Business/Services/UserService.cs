@@ -175,6 +175,7 @@ namespace SmartParkAPI.Business.Services
         {
             entity.PasswordSalt = saltHash.Salt;
             entity.PasswordHash = saltHash.Hash;
+            entity.CreateDate = DateTime.Now;
             var user = _repository.Add(_mapper.Map<User>(entity));
             var userPreference = _userPreferencesRepository.Add(new UserPreferences { UserId = user.Id, ShrinkedSidebar = false });
             await _unitOfWork.CommitAsync();

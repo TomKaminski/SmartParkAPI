@@ -32,9 +32,9 @@ namespace SmartParkAPI.Business.Providers.Email
         {
             switch (type)
             {
-                case EmailType.Register: return File.ReadAllText($"{_appEnv.WebRootPath}{EmailsBasePath}/Register.html");
-                case EmailType.ResetPassword: return File.ReadAllText($"{_appEnv.WebRootPath}{EmailsBasePath}/ResetPassword.html");
-                case EmailType.SelfDelete: return File.ReadAllText($"{_appEnv.WebRootPath}{EmailsBasePath}/SelfDelete.html");
+                case EmailType.Register: return File.ReadAllText($"{_appEnv.ContentRootPath}{EmailsBasePath}/Register.html");
+                case EmailType.ResetPassword: return File.ReadAllText($"{_appEnv.ContentRootPath}{EmailsBasePath}/ResetPassword.html");
+                case EmailType.SelfDelete: return File.ReadAllText($"{_appEnv.ContentRootPath}{EmailsBasePath}/SelfDelete.html");
 
             }
             return "";
@@ -67,7 +67,7 @@ namespace SmartParkAPI.Business.Providers.Email
         }
         private string GetLayoutPath()
         {
-            return $"{_appEnv.WebRootPath}{EmailsBasePath}/_EmailLayout.html";
+            return $"{_appEnv.ContentRootPath}{EmailsBasePath}/_EmailLayout.html";
         }
         private string InsertBodyIntoLayout(string bodyHtml)
         {
