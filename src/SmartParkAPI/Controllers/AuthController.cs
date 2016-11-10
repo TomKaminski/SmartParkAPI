@@ -14,6 +14,7 @@ using SmartParkAPI.Contracts.DTO.User;
 using SmartParkAPI.Contracts.DTO.UserPreferences;
 using SmartParkAPI.Contracts.Services;
 using SmartParkAPI.Models.Auth;
+using SmartParkAPI.Models.Base;
 
 namespace SmartParkAPI.Controllers
 {
@@ -44,23 +45,24 @@ namespace SmartParkAPI.Controllers
         [HttpPost]
         [Route("LoginWeb")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginWeb([FromForm] ApplicationUser applicationUser)
+        public async Task<IActionResult> LoginWeb([FromBody] ApplicationUser applicationUser)
         {
             if (!ModelState.IsValid)
             {
                 return ReturnBadRequestWithModelErrors();
             }
 
-            var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
+            var userLoginResult = await _userService.LoginAsync(applicationUser.Email, applicationUser.Password);
             if (!userLoginResult.IsValid)
             {
-                _logger.LogInformation($"Invalid username ({applicationUser.UserName}) or password ({applicationUser.Password})");
-                return BadRequest("Invalid credentials");
+                _logger.LogInformation($"Invalid username ({applicationUser.Email}) or password ({applicationUser.Password})");
+                return BadRequest(SmartJsonResult.Failure("Invalid credentials."));
             }
             var identity = GetClaimsIdentity(userLoginResult);
 
-            var encodedJwt = await CreateJwtToken(applicationUser.UserName, identity);
+            var encodedJwt = await CreateJwtToken(applicationUser.Email, identity);
 
+            
             // Serialize and return the response
             var response = new
             {
@@ -68,7 +70,7 @@ namespace SmartParkAPI.Controllers
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };
 
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
             return new OkObjectResult(json);
         }
 
@@ -82,10 +84,10 @@ namespace SmartParkAPI.Controllers
                 return ReturnBadRequestWithModelErrors();
             }
 
-            var userLoginResult = await _userService.LoginAsync(applicationUser.UserName, applicationUser.Password);
+            var userLoginResult = await _userService.LoginAsync(applicationUser.Email, applicationUser.Password);
             if (!userLoginResult.IsValid)
             {
-                _logger.LogInformation($"Invalid username ({applicationUser.UserName}) or password ({applicationUser.Password})");
+                _logger.LogInformation($"Invalid username ({applicationUser.Email}) or password ({applicationUser.Password})");
                 return BadRequest("Invalid credentials");
             }
             var identity = GetClaimsIdentity(userLoginResult);
@@ -97,7 +99,7 @@ namespace SmartParkAPI.Controllers
                 return BadRequest("Cannot register current device in system.");
             }
 
-            var encodedJwt = await CreateJwtToken(applicationUser.UserName, identity);
+            var encodedJwt = await CreateJwtToken(applicationUser.Email, identity);
 
             // Serialize and return the response
             var response = new
@@ -107,7 +109,7 @@ namespace SmartParkAPI.Controllers
                 refresh_token = appTokenResult.Result.Token
             };
 
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
             return new OkObjectResult(json);
         }
 
@@ -132,7 +134,7 @@ namespace SmartParkAPI.Controllers
                     expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
                 };
 
-                var json = JsonConvert.SerializeObject(response, _serializerSettings);
+                var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
                 return new OkObjectResult(json);
             }
             return BadRequest();
@@ -164,7 +166,7 @@ namespace SmartParkAPI.Controllers
                 expires_in = (int)_jwtOptions.ValidFor.TotalSeconds
             };
 
-            var json = JsonConvert.SerializeObject(response, _serializerSettings);
+            var json = JsonConvert.SerializeObject(SmartJsonResult<object>.Success(response), _serializerSettings);
             return new OkObjectResult(json);
         }
 
@@ -226,9 +228,9 @@ namespace SmartParkAPI.Controllers
                     new Claim("Name", validServiceResult.Result.Name),
                     new Claim("isAdmin",validServiceResult.Result.IsAdmin.ToString()),
                     new Claim("LastName",validServiceResult.Result.LastName),
-                    new Claim("SidebarShrinked",validServiceResult.SecondResult.ShrinkedSidebar.ToString()),
+                    new Claim("SidebarShrinked",validServiceResult.SecondResult?.ShrinkedSidebar.ToString() ?? false.ToString()),
                     new Claim("userId",validServiceResult.Result.Id.ToString()),
-                    new Claim("photoId", validServiceResult.SecondResult.ProfilePhotoId.ToString())
+                    new Claim("photoId", validServiceResult.SecondResult?.ProfilePhotoId.ToString() ?? "")
                 };
             var identity = new ClaimsIdentity(claims, "Token");
             return identity;

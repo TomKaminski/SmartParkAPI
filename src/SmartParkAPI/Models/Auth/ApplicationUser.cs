@@ -5,7 +5,7 @@ namespace SmartParkAPI.Models.Auth
     public class ApplicationUser
     {
         [Required]
-        public string UserName { get; set; }
+        public string Email { get; set; }
         [Required]
         public string Password { get; set; }
     }

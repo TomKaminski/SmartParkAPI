@@ -145,6 +145,10 @@ namespace SmartParkAPI
                 TokenValidationParameters = tokenValidationParameters
             });
 
+            app.UseCors(x =>
+            {
+                x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+            });
             app.UseMvc();
         }
     }

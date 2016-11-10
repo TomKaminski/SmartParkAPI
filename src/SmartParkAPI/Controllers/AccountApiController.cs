@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartParkAPI.Contracts.DTO.User;
 using SmartParkAPI.Contracts.Services;
 using SmartParkAPI.Models.Account;
 using SmartParkAPI.Models.Base;
 using SmartParkAPI.Models.Panel;
+using SmartParkAPI.Models.Portal.Account;
 using SmartParkAPI.Models.Portal.PriceTreshold;
 using SmartParkAPI.Shared.Enums;
 
@@ -45,6 +47,24 @@ namespace SmartParkAPI.Controllers
             return changePasswordTokenResult.IsValid
                 ? SmartJsonResult<bool>.Success(true)
                 : SmartJsonResult<bool>.Failure(changePasswordTokenResult.ValidationErrors);
+        }
+
+        [HttpPost]
+        [Route("Register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userCreateResult = await _userService.CreateAsync(_mapper.Map<UserBaseDto>(model), model.Password);
+                if (userCreateResult.IsValid)
+                {
+                    await _messageService.SendMessageAsync(EmailType.Register, userCreateResult.Result, GetAppBaseUrl());
+                    return Ok(SmartJsonResult.Success("Twoje konto zostało utworzone pomyślnie, czas się zalogować! :)"));
+                }
+                return BadRequest(SmartJsonResult.Failure(userCreateResult.ValidationErrors));
+            }
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]

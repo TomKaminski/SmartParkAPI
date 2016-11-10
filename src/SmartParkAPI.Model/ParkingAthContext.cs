@@ -64,6 +64,7 @@ namespace SmartParkAPI.Model
             modelBuilder.Entity<User>()
                 .HasOne(x => x.UserPreferences)
                 .WithOne(x => x.User)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<PriceTreshold>()
