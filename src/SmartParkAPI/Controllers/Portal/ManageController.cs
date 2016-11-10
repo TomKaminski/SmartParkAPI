@@ -45,20 +45,20 @@ namespace SmartParkAPI.Controllers.Portal
             return PartialView();
         }
 
-        //[Route("GetSettingsIndexData")]
-        //public async Task<IActionResult> GetSettingsIndexData()
-        //{
-        //    var serviceResult = await _userService.GetUserDataWithLastGateUsage(CurrentUser.UserId.Value);
-        //    if (serviceResult.IsValid)
-        //    {
-        //        var viewModel = _mapper.Map<UserBaseViewModel>(serviceResult.Result);
-        //        viewModel.LastGateOpenDate = serviceResult.SecondResult != null
-        //            ? $"{serviceResult.SecondResult.DateOfUse.ToLongDateString()} - {serviceResult.SecondResult.DateOfUse.ToShortTimeString()}"
-        //            : "Brak wyjazdów";
-        //        return Json(SmartJsonResult<UserBaseViewModel>.Success(viewModel));
-        //    }
-        //    return Json(SmartJsonResult<UserBaseViewModel>.Failure(serviceResult.ValidationErrors));
-        //}
+        [Route("GetSettingsIndexData")]
+        public async Task<IActionResult> GetSettingsIndexData()
+        {
+            var serviceResult = await _userService.GetUserDataWithLastGateUsage(CurrentUser.UserId.Value);
+            if (serviceResult.IsValid)
+            {
+                var viewModel = _mapper.Map<UserBaseViewModel>(serviceResult.Result);
+                viewModel.LastGateOpenDate = serviceResult.SecondResult != null
+                    ? $"{serviceResult.SecondResult.DateOfUse.ToLongDateString()} - {serviceResult.SecondResult.DateOfUse.ToShortTimeString()}"
+                    : "Brak wyjazdów";
+                return Ok(SmartJsonResult<UserBaseViewModel>.Success(viewModel));
+            }
+            return BadRequest(SmartJsonResult<UserBaseViewModel>.Failure(serviceResult.ValidationErrors));
+        }
 
         //[HttpPost]
         //[Route("SelfDeleteStart")]
@@ -74,17 +74,12 @@ namespace SmartParkAPI.Controllers.Portal
         //            new Dictionary<string, string> { { "SelfDeleteLink", selfDeleteUrl } });
         //        if (messageSentResult.IsValid)
         //        {
-        //            return
-        //                Json(
-        //                    SmartJsonResult.Success(
-        //                        "Na adres email powiązany z kontem została wysłana wiadomość z dalszymi instrukcjami"));
+        //            return Ok(SmartJsonResult.Success("Na adres email powiązany z kontem została wysłana wiadomość z dalszymi instrukcjami"));
         //        }
-        //        return Json(SmartJsonResult.Failure(messageSentResult.ValidationErrors));
+        //        return BadRequest(SmartJsonResult.Failure(messageSentResult.ValidationErrors));
         //    }
-        //    return Json(SmartJsonResult.Failure(selfDeleteTokenGetResult.ValidationErrors));
+        //    return BadRequest(SmartJsonResult.Failure(selfDeleteTokenGetResult.ValidationErrors));
         //}
-
-
 
         //[Route("PotwierdzenieUsunieciaKonta")]
         //[HttpPost]
@@ -115,7 +110,7 @@ namespace SmartParkAPI.Controllers.Portal
                 if (resetPasswordResult.IsValid)
                 {
                     model.AppendNotifications("Hasło zostało zmienione pomyślnie.");
-                    return Json(model);
+                    return Ok(model);
                 }
                 model.AppendErrors(resetPasswordResult.ValidationErrors);
             }

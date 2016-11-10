@@ -32,105 +32,116 @@ namespace SmartParkAPI.Controllers.Portal
             _orderService = orderService;
         }
 
-        //[Route("GetChartData")]
-        //[HttpPost]
-        //public async Task<IActionResult> GetChartData([FromBody]ChartDataRequest model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var serviceRequest = _mapper.Map<ChartRequestDto>(model);
-        //        serviceRequest.UserId = CurrentUser.UserId.Value;
-        //        var chartDataResult = await _chartService.GetDataAsync(serviceRequest);
-        //        if (chartDataResult.IsValid)
-        //        {
-        //            return Json(SmartJsonResult<ChartDataReturnModel>
-        //                .Success(_mapper.Map<ChartDataReturnModel>(chartDataResult.Result)));
-        //        }
+        [Route("GetChartData")]
+        [HttpPost]
+        public async Task<IActionResult> GetChartData([FromBody]ChartDataRequest model)
+        {
+            if (ModelState.IsValid)
+            {
+                var serviceRequest = _mapper.Map<ChartRequestDto>(model);
 
-        //        return Json(SmartJsonResult.Failure(chartDataResult.ValidationErrors));
-        //    }
-        //    return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
-        //}
+                // ReSharper disable once PossibleInvalidOperationException
+                serviceRequest.UserId = CurrentUser.UserId.Value;
 
-        //[Route("GetDefaultChartData")]
-        //[HttpPost]
-        //public async Task<IActionResult> GetDefaultChartData()
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        var chartDataAndPreferencesResult = await _chartService.GetDefaultDataAsync(CurrentUser.UserId.Value);
-        //        if (chartDataAndPreferencesResult.IsValid)
-        //        {
-        //            var result = new
-        //            {
-        //                gateUsagesData = _mapper.Map<ChartDataReturnModel>(chartDataAndPreferencesResult.Result.FirstOrDefault(x => x.Key == ChartType.GateOpenings).Value),
-        //                ordersData = _mapper.Map<ChartDataReturnModel>(chartDataAndPreferencesResult.Result.FirstOrDefault(x => x.Key == ChartType.Orders).Value),
-        //            };
+                var chartDataResult = await _chartService.GetDataAsync(serviceRequest);
+                if (chartDataResult.IsValid)
+                {
+                    return Ok(SmartJsonResult<ChartDataReturnModel>.Success(_mapper.Map<ChartDataReturnModel>(chartDataResult.Result)));
+                }
 
-        //            return Json(SmartJsonResult<object, ChartPreferencesReturnModel>
-        //                .Success(result, _mapper.Map<ChartPreferencesReturnModel>(chartDataAndPreferencesResult.SecondResult)));
-        //        }
-        //        return Json(SmartJsonResult.Failure(chartDataAndPreferencesResult.ValidationErrors));
-        //    }
-        //    return Json(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
-        //}
+                return BadRequest(SmartJsonResult.Failure(chartDataResult.ValidationErrors));
+            }
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+        }
 
-        //[HttpPost]
-        //[Route("OrderDateRangeList")]
-        //public async Task<IActionResult> OrderDateRangeList([FromBody]SmartParkListDateRangeRequestViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        model = new SmartParkListDateRangeRequestViewModel
-        //        {
-        //            DateFrom = DateTime.Today.AddDays(-6),
-        //            DateTo = DateTime.Now
-        //        };
-        //    }
+        [Route("GetDefaultChartData")]
+        [HttpPost]
+        public async Task<IActionResult> GetDefaultChartData()
+        {
+            if (ModelState.IsValid)
+            {
+                // ReSharper disable once PossibleInvalidOperationException
+                var chartDataAndPreferencesResult = await _chartService.GetDefaultDataAsync(CurrentUser.UserId.Value);
+                if (chartDataAndPreferencesResult.IsValid)
+                {
+                    var result = new
+                    {
+                        gateUsagesData = _mapper.Map<ChartDataReturnModel>(chartDataAndPreferencesResult.Result.FirstOrDefault(x => x.Key == ChartType.GateOpenings).Value),
+                        ordersData = _mapper.Map<ChartDataReturnModel>(chartDataAndPreferencesResult.Result.FirstOrDefault(x => x.Key == ChartType.Orders).Value),
+                    };
 
-        //    var dateFrom = model.DateFrom;
-        //    var dateTo = model.DateTo;
-        //    var userId = CurrentUser.UserId.Value;
+                    return Ok(SmartJsonResult<object, ChartPreferencesReturnModel>.Success(result, _mapper.Map<ChartPreferencesReturnModel>(chartDataAndPreferencesResult.SecondResult)));
+                }
+                return BadRequest(SmartJsonResult.Failure(chartDataAndPreferencesResult.ValidationErrors));
+            }
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
+        }
 
-        //    var serviceResult = await _orderService.GetAllAsync(x => x.Date >= dateFrom && x.Date <= dateTo && x.UserId == userId);
-        //    return Json(serviceResult.IsValid
-        //        ? SmartJsonResult<SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>>
-        //        .Success(new SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>
-        //        {
-        //            ListItems = serviceResult.Result.OrderByDescending(x=>x.Date).Select(_mapper.Map<ShopOrderItemViewModel>),
-        //            DateTo = model.DateTo,
-        //            DateFrom = model.DateFrom
-        //        })
-        //        : SmartJsonResult<SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>>.Failure(serviceResult.ValidationErrors));
-        //}
+        [HttpPost]
+        [Route("OrderDateRangeList")]
+        public async Task<IActionResult> OrderDateRangeList([FromBody]SmartParkListDateRangeRequestViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model = new SmartParkListDateRangeRequestViewModel
+                {
+                    DateFrom = DateTime.Today.AddDays(-6),
+                    DateTo = DateTime.Now
+                };
+            }
 
-        //[HttpPost]
-        //[Route("GtDateRangeList")]
-        //public async Task<IActionResult> GtDateRangeList([FromBody]SmartParkListDateRangeRequestViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        model = new SmartParkListDateRangeRequestViewModel
-        //        {
-        //            DateFrom = DateTime.Today.AddDays(-6),
-        //            DateTo = DateTime.Now
-        //        };
-        //    }
+            var dateFrom = model.DateFrom;
+            var dateTo = model.DateTo;
 
-        //    var dateFrom = model.DateFrom;
-        //    var dateTo = model.DateTo;
-        //    var userId = CurrentUser.UserId.Value;
+            // ReSharper disable once PossibleInvalidOperationException
+            var userId = CurrentUser.UserId.Value;
 
-        //    var serviceResult = await _gateUsageService.GetAllAsync(x => x.DateOfUse >= dateFrom && x.DateOfUse <= dateTo && x.UserId == userId);
-        //    return Json(serviceResult.IsValid
-        //        ? SmartJsonResult<SmartParkListWithDateRangeViewModel<GateOpeningViewModel>>
-        //        .Success(new SmartParkListWithDateRangeViewModel<GateOpeningViewModel>
-        //        {
-        //            ListItems = serviceResult.Result.OrderByDescending(x=>x.DateOfUse).Select(_mapper.Map<GateOpeningViewModel>),
-        //            DateTo = model.DateTo,
-        //            DateFrom = model.DateFrom
-        //        })
-        //        : SmartJsonResult<SmartParkListWithDateRangeViewModel<GateOpeningViewModel>>.Failure(serviceResult.ValidationErrors));
-        //}
+            var serviceResult = await _orderService.GetAllAsync(x => x.Date >= dateFrom && x.Date <= dateTo && x.UserId == userId);
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>>
+                    .Success(new SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>
+                    {
+                        ListItems = serviceResult.Result.OrderByDescending(x => x.Date).Select(_mapper.Map<ShopOrderItemViewModel>),
+                        DateTo = model.DateTo,
+                        DateFrom = model.DateFrom
+                    }));
+            }
+            return BadRequest(SmartJsonResult<SmartParkListWithDateRangeViewModel<ShopOrderItemViewModel>>.Failure(serviceResult.ValidationErrors));
+        }
+
+        [HttpPost]
+        [Route("GtDateRangeList")]
+        public async Task<IActionResult> GtDateRangeList([FromBody]SmartParkListDateRangeRequestViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model = new SmartParkListDateRangeRequestViewModel
+                {
+                    DateFrom = DateTime.Today.AddDays(-6),
+                    DateTo = DateTime.Now
+                };
+            }
+
+            var dateFrom = model.DateFrom;
+            var dateTo = model.DateTo;
+
+            // ReSharper disable once PossibleInvalidOperationException
+            var userId = CurrentUser.UserId.Value;
+
+            var serviceResult = await _gateUsageService.GetAllAsync(x => x.DateOfUse >= dateFrom && x.DateOfUse <= dateTo && x.UserId == userId);
+
+            if (serviceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<SmartParkListWithDateRangeViewModel<GateOpeningViewModel>>
+                    .Success(new SmartParkListWithDateRangeViewModel<GateOpeningViewModel>
+                    {
+                        ListItems = serviceResult.Result.OrderByDescending(x => x.DateOfUse).Select(_mapper.Map<GateOpeningViewModel>),
+                        DateTo = model.DateTo,
+                        DateFrom = model.DateFrom
+                    }));
+            }
+            return BadRequest(SmartJsonResult<SmartParkListWithDateRangeViewModel<GateOpeningViewModel>>.Failure(serviceResult.ValidationErrors));
+        }
     }
 }

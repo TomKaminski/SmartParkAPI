@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using SmartParkAPI.Contracts.Common;
 using SmartParkAPI.Models;
-using SmartParkAPI.Models.Base;
 
 namespace SmartParkAPI.Controllers
 {
@@ -55,14 +52,5 @@ namespace SmartParkAPI.Controllers
             return Url.Action("Index", "Home", new {area = "Portal"}, "http");
         }
 
-        protected IActionResult ReturnJsonModelWithError<TModel, TServiceResult>(TModel model,
-            TServiceResult serviceResult, ModelStateDictionary modelState)
-            where TModel : SmartParkBaseViewModel
-            where TServiceResult : ServiceResult
-        {
-            model.AppendErrors(serviceResult.ValidationErrors);
-            model.AppendErrors(GetModelStateErrors(modelState));
-            return Json(model);
-        }
     }
 }

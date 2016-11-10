@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using ParkingATHWeb.Shared.Enums;
 using SmartParkAPI.Contracts.DTO.Chart;
 using SmartParkAPI.Contracts.Services;
+using SmartParkAPI.Models.Base;
 using SmartParkAPI.Models.Portal.Chart;
 using SmartParkAPI.Models.Portal.Weather;
 using SmartParkAPI.Shared.Enums;
@@ -46,27 +47,27 @@ namespace SmartParkAPI.Controllers.Portal
         public async Task<IActionResult> GetWeatherData()
         {
             var weatherData = _mapper.Map<WeatherDataViewModel>((await _weatherService.GetLatestWeatherDataAsync()).Result);
-            return Ok(weatherData);
+            return Ok(SmartJsonResult<WeatherDataViewModel>.Success(weatherData));
         }
 
-        //[Route("[controller]/[action]")]
-        //public async Task<IActionResult> GetUserChargesData()
-        //{
-        //    var user = (await _userService.GetByEmailAsync(CurrentUser.Email)).Result;
-        //    var userId = user.Id;
-        //    var endDate = DateTime.Today.AddDays(1).AddSeconds(-1);
-        //    var startDate = DateTime.Today.AddDays(-6);
-        //    var userGateUsages = (await _gateUsageService.GetAllAsync(x => x.UserId == userId)).Result.ToList();
+        [Route("[controller]/[action]")]
+        public async Task<IActionResult> GetUserChargesData()
+        {
+            var user = (await _userService.GetByEmailAsync(CurrentUser.Email)).Result;
+            var userId = user.Id;
+            var endDate = DateTime.Today.AddDays(1).AddSeconds(-1);
+            var startDate = DateTime.Today.AddDays(-6);
+            var userGateUsages = (await _gateUsageService.GetAllAsync(x => x.UserId == userId)).Result.ToList();
 
-        //    var lineChartData = await _chartService.GetDataAsync(new ChartRequestDto(startDate, endDate, ChartType.GateOpenings, ChartGranuality.PerDay, userId));
+            var lineChartData = await _chartService.GetDataAsync(new ChartRequestDto(startDate, endDate, ChartType.GateOpenings, ChartGranuality.PerDay, userId));
 
-        //    return Json(new
-        //    {
-        //        chargesUsed = userGateUsages.Count,
-        //        chargesLeft = user.Charges,
-        //        lineChartData = _mapper.Map<ChartDataReturnModel>(lineChartData.Result)
-        //    });
-        //}
+            return Ok(new
+            {
+                chargesUsed = userGateUsages.Count,
+                chargesLeft = user.Charges,
+                lineChartData = _mapper.Map<ChartDataReturnModel>(lineChartData.Result)
+            });
+        }
 
         private string GetPathBaseRedirect(string pathBase = null)
         {

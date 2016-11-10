@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartParkAPI.Contracts.DTO.User;
 using SmartParkAPI.Contracts.Services;
+using SmartParkAPI.Models.Base;
 using SmartParkAPI.Models.Portal.Account;
 using SmartParkAPI.Shared.Enums;
 
@@ -37,17 +38,15 @@ namespace SmartParkAPI.Controllers.Portal
                 if (userCreateResult.IsValid)
                 {
                     await _messageService.SendMessageAsync(EmailType.Register, userCreateResult.Result, GetAppBaseUrl());
-                    model.AppendNotifications("Twoje konto zostało utworzone pomyślnie, czas się zalogować! :)");
+                    return Ok(SmartJsonResult<RegisterViewModel>.Success(model, "Twoje konto zostało utworzone pomyślnie, czas się zalogować! :)"));
                 }
-                model.AppendErrors(userCreateResult.ValidationErrors);
+                return BadRequest(SmartJsonResult.Failure(userCreateResult.ValidationErrors));
             }
-            model.AppendErrors(GetModelStateErrors(ModelState));
-            return Json(model);
+            return BadRequest(SmartJsonResult.Failure(GetModelStateErrors(ModelState)));
         }
 
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryToken]
         [Route("ZapomnianeHaslo")]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
@@ -59,12 +58,11 @@ namespace SmartParkAPI.Controllers.Portal
                     var changePasswordUrl = $"{Url.Action("RedirectFromToken", "Token", null, "http")}?id={changePasswordTokenResult.SecondResult}";
                     await _messageService.SendMessageAsync(EmailType.ResetPassword, changePasswordTokenResult.Result, GetAppBaseUrl(),
                         new Dictionary<string, string> { { "ChangePasswordLink", changePasswordUrl } });
-                    model.AppendNotifications("Na podany adres email zostały wysłane dalsze instrukcje.");
+                    return Ok(SmartJsonResult<ForgotPasswordViewModel>.Success(model, "Na podany adres email zostały wysłane dalsze instrukcje."));
                 }
-                model.AppendErrors(changePasswordTokenResult.ValidationErrors);
+                return BadRequest(changePasswordTokenResult.ValidationErrors);
             }
-            model.AppendErrors(GetModelStateErrors(ModelState));
-            return Json(model);
+            return BadRequest(GetModelStateErrors(ModelState));
         }
     }
 }

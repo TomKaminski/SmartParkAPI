@@ -46,23 +46,25 @@ namespace SmartParkAPI.Controllers.Portal
                     price.PercentDiscount = 100 - Convert.ToInt32((price.PricePerCharge * 100) / defaultPrice.PricePerCharge);
                 }
 
-                return Json(SmartJsonResult<IEnumerable<PriceTresholdShopItemViewModel>>.Success(pricesViewModels));
+                return Ok(SmartJsonResult<IEnumerable<PriceTresholdShopItemViewModel>>.Success(pricesViewModels));
             }
-            return Json(SmartJsonResult<IEnumerable<PriceTresholdShopItemViewModel>>.Failure(currentPricesResult.ValidationErrors));
+            return BadRequest(SmartJsonResult<IEnumerable<PriceTresholdShopItemViewModel>>.Failure(currentPricesResult.ValidationErrors));
         }
 
-        //[HttpPost]
-        //[Route("[action]")]
-        //public async Task<IActionResult> GetUserOrders()
-        //{;
-        //    var userId = CurrentUser.UserId.Value;
-        //    var userOrdersResult = await _orderService.GetAllAsync(x => x.UserId == userId);
-        //    if (userOrdersResult.IsValid)
-        //    {
-        //        var viewModel = userOrdersResult.Result.Take(5).Select(_mapper.Map<ShopOrderItemViewModel>);
-        //        return Json(SmartJsonResult<IEnumerable<ShopOrderItemViewModel>>.Success(viewModel));
-        //    }
-        //    return Json(SmartJsonResult<IEnumerable<ShopOrderItemViewModel>>.Failure(userOrdersResult.ValidationErrors));
-        //}
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> GetUserOrders()
+        {
+            // ReSharper disable once PossibleInvalidOperationException
+            var userId = CurrentUser.UserId.Value;
+
+            var userOrdersResult = await _orderService.GetAllAsync(x => x.UserId == userId);
+            if (userOrdersResult.IsValid)
+            {
+                var viewModel = userOrdersResult.Result.Take(5).Select(_mapper.Map<ShopOrderItemViewModel>);
+                return Ok(SmartJsonResult<IEnumerable<ShopOrderItemViewModel>>.Success(viewModel));
+            }
+            return BadRequest(SmartJsonResult<IEnumerable<ShopOrderItemViewModel>>.Failure(userOrdersResult.ValidationErrors));
+        }
     }
 }

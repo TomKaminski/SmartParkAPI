@@ -30,38 +30,35 @@ namespace SmartParkAPI.Controllers.Portal
             _orderService = orderService;
         }
 
-        //[HttpPost]
-        //[Route("[action]")]
-        //public async Task<IActionResult> ProcessPayment([FromBody]PaymentRequestViewModel model)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        model.UserId = CurrentUser.UserId.Value;
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> ProcessPayment([FromBody]PaymentRequestViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(SmartJsonResult<PaymentResponseViewModel>.Failure(GetModelStateErrors(ModelState)));
 
-        //        //var connection = HttpContext.Features.Get<IHttpConnectionFeature>();
-        //        //model.CustomerIP = connection?.RemoteIpAddress?.ToString();ca
+            // ReSharper disable once PossibleInvalidOperationException
+            model.UserId = CurrentUser.UserId.Value;
 
-        //        model.CustomerIP = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-        //        model.UserEmail = CurrentUser.Email;
-        //        model.UserName = CurrentUser.Name;
-        //        model.UserLastName = CurrentUser.LastName;
+            //var connection = HttpContext.Features.Get<IHttpConnectionFeature>();
+            //model.CustomerIP = connection?.RemoteIpAddress?.ToString();ca
 
-        //        var request = _mapper.Map<PaymentRequest>(model);
-        //        request.notifyUrl = Url.Action("Notify", "Payment", new { area = "Portal" }, "http");
-        //        request.continueUrl = Url.Action("ShopContinue", "Home", new { area = "Portal" }, "http");
-        //        var payuServiceResult = await _payuService.ProcessPaymentAsync(request, model.UserId, OrderPlace.Website);
+            model.CustomerIP = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            model.UserEmail = CurrentUser.Email;
+            model.UserName = CurrentUser.Name;
+            model.UserLastName = CurrentUser.LastName;
 
-        //        if (payuServiceResult.IsValid)
-        //        {
-        //            return
-        //                Json(
-        //                    SmartJsonResult<PaymentResponseViewModel>.Success(
-        //                        _mapper.Map<PaymentResponseViewModel>(payuServiceResult.Result)));
-        //        }
-        //        return Json(SmartJsonResult<PaymentResponseViewModel>.Failure(payuServiceResult.ValidationErrors));
-        //    }
-        //    return Json(SmartJsonResult<PaymentResponseViewModel>.Failure(GetModelStateErrors(ModelState)));
-        //}
+            var request = _mapper.Map<PaymentRequest>(model);
+            request.notifyUrl = Url.Action("Notify", "Payment", new { area = "Portal" }, "http");
+            request.continueUrl = Url.Action("ShopContinue", "Home", new { area = "Portal" }, "http");
+            var payuServiceResult = await _payuService.ProcessPaymentAsync(request, model.UserId, OrderPlace.Website);
+
+            if (payuServiceResult.IsValid)
+            {
+                return Ok(SmartJsonResult<PaymentResponseViewModel>.Success(_mapper.Map<PaymentResponseViewModel>(payuServiceResult.Result)));
+            }
+            return BadRequest(SmartJsonResult<PaymentResponseViewModel>.Failure(payuServiceResult.ValidationErrors));
+        }
 
         [HttpPost]
         [AllowAnonymous]
